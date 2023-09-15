@@ -1,3 +1,6 @@
+using DomainFeatures.Database;
+using DomainFeatures.HubDocuments;
+using DomainFeatures.OpenAi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -30,6 +33,10 @@ namespace Server
             services.AddControllers();
             services.AddSignalR();
 
+            services.AddScoped<HubDocumentsLoaderService>();
+            services.AddSingleton<HubDocumentsSingleton>();
+            services.AddScoped<OpenAIService>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Sika Bot", Version = "v1" });
@@ -39,12 +46,9 @@ namespace Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sika Bot v1"));
-            }
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sika Bot v1"));
 
             app.UseHttpsRedirection();
 
