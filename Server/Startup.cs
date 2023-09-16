@@ -63,11 +63,16 @@ namespace Server
         {
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sika Bot v1"));
+            app.UseSwaggerUI(options =>
+            {
+                options.InjectStylesheet("/swaggerStyles.css");
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Sika Hub v1");
+            });
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseStaticFiles();
 
             app.UseAuthorization();
 

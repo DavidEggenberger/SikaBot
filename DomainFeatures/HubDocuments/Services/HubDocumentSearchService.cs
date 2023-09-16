@@ -24,10 +24,34 @@ namespace DomainFeatures.HubDocuments.Services
             IList<string> recognizedEntities,
             bool? excludeImages)
         {
+            if (supportedLanguages?.Any() == true)
+            {
+                return hubDocumentsSingleton.HubDocuments
+                    .Where(s => s.Summarization.Any(x => supportedLanguages.Contains(x.Item1) && tags.Any(t => x.Item2.Contains(t))))
+                    .Select(x => x.ToDTO())
+                    .ToList();
+            }
+
+            if (tags?.Any() == true)
+            {
+                return hubDocumentsSingleton.HubDocuments
+                    .Where(s => s.Summarization.Any(x => tags.Any(t => x.Item2.Contains(t))))
+                    .Select(x => x.ToDTO())
+                    .ToList();
+            }
+
+            if (recognizedEntities?.Any() == true)
+            {
+                return hubDocumentsSingleton.HubDocuments
+                    .Where(s => s.Entities.Any(x => tags.Any(t => x.ToLower() == t.ToLower())))
+                    .Select(x => x.ToDTO())
+                    .ToList();
+            }
 
 
-
-            return null;
+            return hubDocumentsSingleton.HubDocuments
+                .Select(x => x.ToDTO())
+                .ToList();
         }
     }
 }

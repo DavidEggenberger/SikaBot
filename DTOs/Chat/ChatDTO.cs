@@ -8,7 +8,7 @@ namespace DTOs.Chat
 {
     public class ChatDTO
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public List<MessageDTO> Messages { get; set; }
     }
 }

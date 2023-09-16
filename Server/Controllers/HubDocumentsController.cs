@@ -46,7 +46,7 @@ namespace Server.Controllers
             [FromQuery] bool? excludeImages
             )
         {
-            return Ok(hubDocumentSearchService.SearchHubDocuments(tags, null, recognizedEntities, excludeImages));
+            return Ok(hubDocumentSearchService.SearchHubDocuments(tags, supportedLanguages, recognizedEntities, excludeImages));
         }
 
         [HttpGet("{id}")]

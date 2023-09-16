@@ -7,7 +7,7 @@ namespace DomainFeatures.Chats.Domain
 {
     public class Chat
     {
-        public Guid ChatId { get; set; }
+        public Guid? ChatId { get; set; }
         public List<Message> Messages { get; set; }
 
         public void AddMessage(Message message)
