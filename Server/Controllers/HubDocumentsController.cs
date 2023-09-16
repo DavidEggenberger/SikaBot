@@ -35,16 +35,20 @@ namespace Server.Controllers
             this.imageAnalyzerService = imageAnalyzerService;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<List<HubDocumentDTO>>> SearchHubDocuments(
+            [FromQuery] IList<string> tags,
+            [FromQuery] IList<string> supportedLanguages,
+            [FromQuery] IList<string> recognizedEntities
+            )
+        {
+            return Ok(hubDocumentsSingleton.HubDocuments.Select(s => s.ToDTO()).ToList());
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<HubDocumentDTO>> GetHubDocument(Guid id)
         {
             return Ok(hubDocumentsSingleton.HubDocuments.FirstOrDefault(s => s.Id == id).ToDTO());
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<HubDocumentDTO>>> GetHubDocuments()
-        {
-            return Ok(hubDocumentsSingleton.HubDocuments.Select(s => s.ToDTO()).ToList());
         }
 
         [HttpPost]

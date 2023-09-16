@@ -17,10 +17,10 @@ namespace DomainFeatures.HubDocuments.Services
         }
 
 
-        [HttpGet]
-        public List<HubDocument> SearchHubDocumentsAsync(List<string> keywoards)
-        {
-            return hubDocumentsSingleton.HubDocuments;
-        }
+        
+    }
+    public class SearchHubDocumentsQuery
+    {
+
     }
 }

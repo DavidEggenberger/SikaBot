@@ -40,7 +40,7 @@ namespace DomainFeatures.Database
                         var images = page.GetImages();
                         foreach (var image in images)
                         {
-                            hubDocument.Images.Add(await imageAnalyzerService.AnalyzeImage(image.RawBytes.ToArray()));
+                            //hubDocument.Images.Add(await imageAnalyzerService.AnalyzeImage(image.RawBytes.ToArray()));
                         }
                     }
 
