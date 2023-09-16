@@ -1,4 +1,5 @@
 ﻿using DomainFeatures.HubDocuments.Domain;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,9 @@ namespace DomainFeatures.HubDocuments.Services
         {
             this.hubDocumentsSingleton = hubDocumentsSingleton;
         }
+
+
+        [HttpGet]
         public List<HubDocument> SearchHubDocumentsAsync(List<string> keywoards)
         {
             return hubDocumentsSingleton.HubDocuments;

@@ -59,6 +59,10 @@ namespace DomainFeatures.BlobClient
                 try
                 {
                     await blobContainer.CreateIfNotExistsAsync();
+                    await blobContainer.SetPermissionsAsync(new BlobContainerPermissions
+                    {
+                        PublicAccess = BlobContainerPublicAccessType.Blob
+                    });
                 }
                 catch (Exception ex)
                 {
