@@ -1,6 +1,7 @@
 using DomainFeatures.Chats;
 using DomainFeatures.Database;
 using DomainFeatures.HubDocuments;
+using DomainFeatures.HubDocuments.Services;
 using DomainFeatures.OpenAi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +35,7 @@ namespace Server
             services.AddControllers();
             services.AddSignalR();
 
+            services.AddScoped<SummarizerService>();
             services.AddSingleton<ChatPersistence>();
             services.AddScoped<HubDocumentsLoaderService>();
             services.AddSingleton<HubDocumentsSingleton>();

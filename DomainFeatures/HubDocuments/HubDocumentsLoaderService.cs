@@ -29,10 +29,15 @@ namespace DomainFeatures.Database
                     string text = string.Empty;
                     foreach (Page page in document.GetPages())
                     {
-                        text += $" {page.Text}";
+                        if (text.Length < 2500)
+                        {
+                            text += $" {page.Text}";
+                        }
                     }
 
                     hubDocument.Location = file;
+                    hubDocument.Text = text;
+                    hubDocument.Id = Guid.NewGuid();
 
                     hubDocumentsSingleton.HubDocuments.Add(hubDocument);
                 }

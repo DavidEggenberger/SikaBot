@@ -14,5 +14,10 @@ namespace DomainFeatures.HubDocuments
             HubDocuments = new List<HubDocument>();
         }
         public List<HubDocument> HubDocuments { get; set; }
+
+        public void AddHubDocument(HubDocument hubDocument)
+        {
+            HubDocuments.Add(hubDocument);
+        }
     }
 }

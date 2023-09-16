@@ -1,5 +1,6 @@
 using Azure.Identity;
 using DomainFeatures.Database;
+using DomainFeatures.HubDocuments.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,9 @@ namespace Server
             {
                 var hubsDocumentLoader = serviceScope.ServiceProvider.GetRequiredService<HubDocumentsLoaderService>();
                 await hubsDocumentLoader.LoadHubDocumentsAsnyc();
+
+                var summarizerService = serviceScope.ServiceProvider.GetRequiredService<SummarizerService>();
+                await summarizerService.SummarizeHubDocuments();
             }
 
             host.Run();
