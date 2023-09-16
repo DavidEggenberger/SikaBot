@@ -31,8 +31,8 @@ namespace Server
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext) =>
                 {
-                    //hostingContext.AddAzureKeyVault(new Uri("https://dargebotenehand.vault.azure.net/"),
-                            //new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = "249e3537-00dc-46b0-9eb2-6e422f9fa9b7" }));
+                    hostingContext.AddAzureKeyVault(new Uri("https://sikavault.vault.azure.net/"),
+                            new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = "fa68786c-a92c-47c9-8db2-9ae809ca847e" }));
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
