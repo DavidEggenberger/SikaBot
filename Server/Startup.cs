@@ -1,3 +1,4 @@
+using DomainFeatures.Chats;
 using DomainFeatures.Database;
 using DomainFeatures.HubDocuments;
 using DomainFeatures.OpenAi;
@@ -33,6 +34,7 @@ namespace Server
             services.AddControllers();
             services.AddSignalR();
 
+            services.AddSingleton<ChatPersistence>();
             services.AddScoped<HubDocumentsLoaderService>();
             services.AddSingleton<HubDocumentsSingleton>();
             services.AddScoped<OpenAIService>();
