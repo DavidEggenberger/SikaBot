@@ -8,5 +8,7 @@ namespace DomainFeatures.HubDocuments.Domain
 {
     public class HubDocument
     {
+        public string Location { get; set; }
+        public List<string> Keywords { get; set; }
     }
 }

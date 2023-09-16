@@ -6,6 +6,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using UglyToad.PdfPig.Content;
+using UglyToad.PdfPig;
+using DomainFeatures.HubDocuments.Domain;
 
 namespace DomainFeatures.Database
 {
@@ -17,14 +20,23 @@ namespace DomainFeatures.Database
             this.hubDocumentsSingleton = hubDocumentsSingleton;
         }
         public async Task LoadHubDocumentsAsnyc()
-        {
-            string s = typeof(HubDocumentsLoaderService).Assembly.Location;
-            var files = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(typeof(HubDocumentsLoaderService).Assembly.Location), @"Data\PDF\Brochures"));
-            foreach (var file in files)
+        {            
+            foreach (var file in Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"Data\PDF\"), "*.pdf", SearchOption.AllDirectories))
             {
+                HubDocument hubDocument = new HubDocument();
+                using (PdfDocument document = PdfDocument.Open(file))
+                {
+                    string text = string.Empty;
+                    foreach (Page page in document.GetPages())
+                    {
+                        text += $" {page.Text}";
+                    }
 
+                    hubDocument.Location = file;
+
+                    hubDocumentsSingleton.HubDocuments.Add(hubDocument);
+                }
             }
-
         }
     }
 }

@@ -9,6 +9,10 @@ namespace DomainFeatures.HubDocuments
 {
     public class HubDocumentsSingleton
     {
+        public HubDocumentsSingleton()
+        {
+            HubDocuments = new List<HubDocument>();
+        }
         public List<HubDocument> HubDocuments { get; set; }
     }
 }
