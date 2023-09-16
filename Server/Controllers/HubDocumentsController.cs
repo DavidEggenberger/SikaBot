@@ -5,6 +5,7 @@ using DTOs.HubDocuments;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Azure;
 using System;
 using System.Collections.Generic;
 using System.Formats.Tar;
@@ -26,23 +27,26 @@ namespace Server.Controllers
         private readonly SummarizerService summarizerService;
         private readonly TranslatorService translatorService;
         private readonly ImageAnalyzerService imageAnalyzerService;
-        public HubDocumentsController(TranslatorService translatorService, ImageAnalyzerService imageAnalyzerService, HubDocumentsSingleton hubDocumentsSingleton, IWebHostEnvironment webHostEnvironment, SummarizerService summarizerService)
+        private readonly HubDocumentSearchService hubDocumentSearchService;
+        public HubDocumentsController(TranslatorService translatorService, HubDocumentSearchService hubDocumentSearchService, ImageAnalyzerService imageAnalyzerService, HubDocumentsSingleton hubDocumentsSingleton, IWebHostEnvironment webHostEnvironment, SummarizerService summarizerService)
         {
             this.hubDocumentsSingleton = hubDocumentsSingleton;
             this.webHostEnvironment = webHostEnvironment;
             this.summarizerService = summarizerService;
             this.translatorService = translatorService;
             this.imageAnalyzerService = imageAnalyzerService;
+            this.hubDocumentSearchService = hubDocumentSearchService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<HubDocumentDTO>>> SearchHubDocuments(
             [FromQuery] IList<string> tags,
             [FromQuery] IList<string> supportedLanguages,
-            [FromQuery] IList<string> recognizedEntities
+            [FromQuery] IList<string> recognizedEntities,
+            [FromQuery] bool? excludeImages
             )
         {
-            return Ok(hubDocumentsSingleton.HubDocuments.Select(s => s.ToDTO()).ToList());
+            return Ok(hubDocumentSearchService.SearchHubDocuments(tags, null, recognizedEntities, excludeImages));
         }
 
         [HttpGet("{id}")]
@@ -62,17 +66,8 @@ namespace Server.Controllers
             var id = Guid.NewGuid();
             var generatedFileName = $@"{webHostEnvironment.WebRootPath}/{id}.pdf";
 
-            using (var fileStream = pdfFile.OpenReadStream())
-            {
-                using (var destinationStream = new FileStream(generatedFileName, FileMode.Create, FileAccess.ReadWrite))
-                {
-                    await fileStream.CopyToAsync(destinationStream);
-                    await fileStream.FlushAsync();
-                }
-            };
-
             var hubDocument = new HubDocument() { Id = Guid.NewGuid() };
-            using (PdfDocument document = PdfDocument.Open(generatedFileName))
+            using (PdfDocument document = PdfDocument.Open(pdfFile.OpenReadStream()))
             {
                 string text = string.Empty;
                 foreach (Page page in document.GetPages())
@@ -89,11 +84,6 @@ namespace Server.Controllers
                 }
 
                 hubDocument.Text = text;
-            }
-
-            if (System.IO.File.Exists(generatedFileName))
-            {
-                System.IO.File.Delete(generatedFileName);
             }
 
             hubDocumentsSingleton.AddHubDocument(hubDocument);

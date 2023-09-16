@@ -38,6 +38,7 @@ namespace Server
             services.AddControllers();
             services.AddSignalR();
 
+            services.AddScoped<HubDocumentSearchService>();
             services.AddSingleton<BlobStorageConstants>();
             services.AddScoped<BlobClientService>();
             services.AddScoped<ImageAnalyzerService>();

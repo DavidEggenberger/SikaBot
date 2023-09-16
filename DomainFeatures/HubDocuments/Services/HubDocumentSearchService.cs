@@ -1,4 +1,5 @@
 ﻿using DomainFeatures.HubDocuments.Domain;
+using DTOs.HubDocuments;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -17,10 +18,16 @@ namespace DomainFeatures.HubDocuments.Services
         }
 
 
-        
-    }
-    public class SearchHubDocumentsQuery
-    {
+        public List<HubDocumentDTO> SearchHubDocuments(
+            IList<string> tags, 
+            IList<string> supportedLanguages, 
+            IList<string> recognizedEntities,
+            bool? excludeImages)
+        {
 
+
+
+            return null;
+        }
     }
 }
