@@ -1,6 +1,7 @@
 using Azure.Identity;
 using DomainFeatures.Database;
 using DomainFeatures.HubDocuments.Services;
+using DomainFeatures.QuestionAnswering;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

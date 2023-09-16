@@ -1,8 +1,10 @@
-﻿using DomainFeatures.Chats;
+﻿using DomainFeatures;
+using DomainFeatures.Chats;
 using DomainFeatures.Chats.Domain;
 using DTOs.Chat;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,10 +16,12 @@ namespace Server.Controllers
     public class ChatsController : ControllerBase
     {
         private readonly ChatPersistence chatPersistence;
-
-        public ChatsController(ChatPersistence chatPersistence)
+        private readonly ChatBotService chatBotService;
+        private readonly IHubContext<NotificationHub> hubContext;
+        public ChatsController(ChatPersistence chatPersistence, ChatBotService chatBotService)
         {
             this.chatPersistence = chatPersistence;
+            this.chatBotService = chatBotService;
         }
 
         /// <summary>
@@ -52,6 +56,8 @@ namespace Server.Controllers
 
             var message = chat.Messages.Last();
 
+            chatBotService.AnswerQuestionAsync(chat, message);
+
             return Ok(chat.ToDTO());
         }
 
@@ -71,6 +77,10 @@ namespace Server.Controllers
             Message message = Message.FromDTO(messageDTO);
 
             chat.AddMessage(message);
+
+            var newmessage = chat.Messages.Last();
+
+            chatBotService.AnswerQuestionAsync(chat, newmessage);
 
             return Ok();
         }

@@ -20,6 +20,9 @@ namespace DomainFeatures.OpenAi
             var api = new OpenAI_API.OpenAIAPI(configuration["OpenAI"]);
             var aiChat = api.Chat.CreateConversation();
 
+            aiChat.AppendSystemMessage("You are representing Sika, a big swiss company with various different building materials. Please only" +
+                "answer with short and precise words");
+
             aiChat.AppendUserInput(prompt);
 
             return await aiChat.GetResponseFromChatbotAsync();

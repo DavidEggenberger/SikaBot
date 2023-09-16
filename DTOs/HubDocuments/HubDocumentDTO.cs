@@ -10,10 +10,15 @@ namespace DTOs.HubDocuments
     {
         public Guid Id { get; set; }
         public string Location { get; set; }
-        public string Summarization { get; set; }
+        public List<TranslatedValue> Summarization { get; set; }
         public List<string> KeyPhrases { get; set; }
         public List<string> Entities { get; set; }
         public List<string> Keywords { get; set; }
+        public string Text { get; set; }
+    }
+    public class TranslatedValue
+    {
+        public string Language { get; set; }
         public string Text { get; set; }
     }
 }

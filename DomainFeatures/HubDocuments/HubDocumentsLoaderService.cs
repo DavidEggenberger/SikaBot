@@ -9,15 +9,18 @@ using System.Threading.Tasks;
 using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig;
 using DomainFeatures.HubDocuments.Domain;
+using DomainFeatures.HubDocuments.Services;
 
 namespace DomainFeatures.Database
 {
     public class HubDocumentsLoaderService
     {
         private readonly HubDocumentsSingleton hubDocumentsSingleton;
-        public HubDocumentsLoaderService(HubDocumentsSingleton hubDocumentsSingleton)
+        private readonly ImageAnalyzerService imageAnalyzerService;
+        public HubDocumentsLoaderService(HubDocumentsSingleton hubDocumentsSingleton, ImageAnalyzerService imageAnalyzerService)
         {
             this.hubDocumentsSingleton = hubDocumentsSingleton;
+            this.imageAnalyzerService = imageAnalyzerService;
         }
         public async Task LoadHubDocumentsAsnyc()
         {            
@@ -32,6 +35,13 @@ namespace DomainFeatures.Database
                         if (text.Length < 2500)
                         {
                             text += $" {page.Text}";
+                        }
+
+                        var images = page.GetImages();
+                        foreach (var image in images)
+                        {
+                            //await imageAnalyzerService.AnalyzeImage(image.RawBytes.ToArray());
+                            await imageAnalyzerService.GetVectorOfImage(image.RawBytes.ToArray());
                         }
                     }
 

@@ -65,7 +65,7 @@ namespace DomainFeatures.HubDocuments.Services
                     foreach (var summarizeResult in summarizationResults)
                     {
                         var hubDocument = hubDocumentsSingleton.HubDocuments.First(h => h.Id == new Guid(summarizeResult.Id));
-                        hubDocument.Summarization = string.Join(", ", summarizeResult.Sentences.OrderByDescending(s => s.RankScore).Select(s => s.Text).ToList());
+                        hubDocument.Summarization = new List<(string, string)> { new("en", string.Join(", ", summarizeResult.Sentences.OrderByDescending(s => s.RankScore).Select(s => s.Text).ToList())) };
                     }
 
                     foreach (var recognizeEntities in recognizeEntitiesResults)
@@ -76,5 +76,60 @@ namespace DomainFeatures.HubDocuments.Services
                 }
             }          
         }
+
+        public async Task SummarizeHubDocumentAsync(HubDocument document)
+        {
+            string languageKey = configuration["SikaAI"];
+            string languageEndpoint = "https://sikaailanguage.cognitiveservices.azure.com/";
+
+            AzureKeyCredential credentials = new AzureKeyCredential(languageKey);
+            Uri endpoint = new Uri(languageEndpoint);
+
+            var client = new TextAnalyticsClient(endpoint, credentials);
+
+            TextAnalyticsActions actions = new TextAnalyticsActions()
+            {
+                RecognizeEntitiesActions = new List<RecognizeEntitiesAction>() { new RecognizeEntitiesAction() { ActionName = "RecognieEntity" } },
+                ExtractiveSummarizeActions = new List<ExtractiveSummarizeAction>() { new ExtractiveSummarizeAction() { ActionName = "ExtraceSummarize" } },
+                ExtractKeyPhrasesActions = new List<ExtractKeyPhrasesAction>() { new ExtractKeyPhrasesAction() { ActionName = "ExtractKeyPhrasesSample" } },
+            };
+
+            var documentInput = new TextDocumentInput(document.Id.ToString(), document.Text);
+
+            // Start analysis process.
+            AnalyzeActionsOperation operation = await client.StartAnalyzeActionsAsync(new List<TextDocumentInput> { documentInput }, actions);
+
+            await operation.WaitForCompletionAsync();
+
+            await foreach (AnalyzeActionsResult documentsInPage in operation.Value)
+            {
+                IReadOnlyCollection<ExtractKeyPhrasesActionResult> keyPhraseResults = documentsInPage.ExtractKeyPhrasesResults;
+                IReadOnlyCollection<ExtractiveSummarizeActionResult> summarizeResults = documentsInPage.ExtractiveSummarizeResults;
+                IReadOnlyCollection<RecognizeEntitiesActionResult> entitiesResults = documentsInPage.RecognizeEntitiesResults;
+
+                var recognizeEntitiesResults = entitiesResults.SelectMany(s => s.DocumentsResults).ToList();
+                var summarizationResults = summarizeResults.SelectMany(s => s.DocumentsResults).ToList();
+                var keyPhrasesResults = keyPhraseResults.SelectMany(s => s.DocumentsResults).ToList();
+
+                foreach (var keyPhraseResult in keyPhrasesResults)
+                {
+                    var hubDocument = hubDocumentsSingleton.HubDocuments.First(h => h.Id == new Guid(keyPhraseResult.Id));
+                    hubDocument.KeyPhrases = keyPhraseResult.KeyPhrases.ToList();
+                }
+
+                foreach (var summarizeResult in summarizationResults)
+                {
+                    var hubDocument = hubDocumentsSingleton.HubDocuments.First(h => h.Id == new Guid(summarizeResult.Id));
+                    hubDocument.Summarization = new List<(string, string)> { new("en", string.Join(", ", summarizeResult.Sentences.OrderByDescending(s => s.RankScore).Select(s => s.Text).ToList())) };
+                }
+
+                foreach (var recognizeEntities in recognizeEntitiesResults)
+                {
+                    var hubDocument = hubDocumentsSingleton.HubDocuments.First(h => h.Id == new Guid(recognizeEntities.Id));
+                    hubDocument.Entities = recognizeEntities.Entities.Select(s => s.Text).ToList();
+                }
+            }
+        }
+        
     }
 }

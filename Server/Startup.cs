@@ -1,8 +1,10 @@
+using DomainFeatures;
 using DomainFeatures.Chats;
 using DomainFeatures.Database;
 using DomainFeatures.HubDocuments;
 using DomainFeatures.HubDocuments.Services;
 using DomainFeatures.OpenAi;
+using DomainFeatures.QuestionAnswering;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Server.Hubs;
+using Server.BackgroundJobs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,11 +37,16 @@ namespace Server
             services.AddControllers();
             services.AddSignalR();
 
+            services.AddScoped<ImageAnalyzerService>();
+            services.AddScoped<ChatBotService>();
+            services.AddScoped<QuestionAnswererService>();
+            services.AddScoped<TranslatorService>();
             services.AddScoped<SummarizerService>();
             services.AddSingleton<ChatPersistence>();
             services.AddScoped<HubDocumentsLoaderService>();
             services.AddSingleton<HubDocumentsSingleton>();
             services.AddScoped<OpenAIService>();
+            services.AddHostedService<ReindexingJob>();
 
             services.AddSwaggerGen(c =>
             {
