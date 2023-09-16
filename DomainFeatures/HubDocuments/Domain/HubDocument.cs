@@ -8,10 +8,34 @@ using System.Threading.Tasks;
 
 namespace DomainFeatures.HubDocuments.Domain
 {
-    public class Image
+    public class DetectionValue
     {
-        public List<string> Tags { get; set; }
+        public bool IsText { get; set; }
+        public double Confidence { get; set; }
+        public string Name { get; set; }
+        public DetectionValueDTO ToDTO()
+        {
+            return new DetectionValueDTO
+            {
+                IsText = IsText,
+                Confidence = Confidence,
+                Name = Name
+            };
+        }
+    }
+    public class HubDocumentImage
+    {
+        public List<DetectionValue> DetectionValues { get; set; }
         public string uri { get; set; }
+
+        public HubDocumentImageDTO ToDTO()
+        {
+            return new HubDocumentImageDTO
+            {
+                DetectionValues = DetectionValues.Select(x => x.ToDTO()).ToList(),
+                uri = uri
+            };
+        }
     }
     public class HubDocument
     {
@@ -23,7 +47,7 @@ namespace DomainFeatures.HubDocuments.Domain
         public List<string> Entities { get; set; }
         public List<string> Keywords { get; set; }
         public string Text { get; set; }
-        public List<Image> Images { get; set; }
+        public List<HubDocumentImage> Images { get; set; } = new List<HubDocumentImage>();
 
         public HubDocumentDTO ToDTO()
         {
@@ -35,7 +59,8 @@ namespace DomainFeatures.HubDocuments.Domain
                 Summarization = Summarization.Select(x => new TranslatedValue { Language = x.Item1, Text = x.Item2}).ToList(),
                 KeyPhrases = KeyPhrases,
                 Text = Text,
-                Keywords = Keywords
+                Keywords = Keywords,
+                Images = Images.Select(x => x.ToDTO()).ToList()
             };
         }
     }

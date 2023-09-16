@@ -2,6 +2,7 @@
 using Azure.AI.Vision.Common;
 using Azure.AI.Vision.ImageAnalysis;
 using Azure.Storage.Blobs;
+using DomainFeatures.HubDocuments.Domain;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
@@ -38,7 +39,7 @@ namespace DomainFeatures.HubDocuments.Services
             visionServiceOptions = new VisionServiceOptions("https://sikaimage.cognitiveservices.azure.com/", new AzureKeyCredential(configuration["SikaImage"]));
         }
 
-        public async Task AnalyzeImage(byte[] bytes)
+        public async Task<HubDocumentImage> AnalyzeImage(byte[] bytes)
         {
             using var imageSourceBuffer = new ImageSourceBuffer();
             imageSourceBuffer.GetWriter().Write(new Memory<byte>(bytes));
@@ -48,7 +49,6 @@ namespace DomainFeatures.HubDocuments.Services
             {
                 Features =
                 ImageAnalysisFeature.Objects
-                | ImageAnalysisFeature.People
                 | ImageAnalysisFeature.Text
                 | ImageAnalysisFeature.Tags
             };
@@ -57,6 +57,53 @@ namespace DomainFeatures.HubDocuments.Services
 
             var result = await analyzer.AnalyzeAsync();
 
+            MemoryStream ms = new MemoryStream(bytes);
+
+            string storageConnectionString = configuration["BlobConnection"];
+
+            CloudStorageAccount account = CloudStorageAccount.Parse(storageConnectionString);
+            var blobClient = account.CreateCloudBlobClient();
+
+            // Make sure container is there
+            var blobContainer = blobClient.GetContainerReference("default");
+            await blobContainer.SetPermissionsAsync(new BlobContainerPermissions
+            {
+                PublicAccess = BlobContainerPublicAccessType.Blob
+            });
+            await blobContainer.CreateIfNotExistsAsync();
+
+            var id = Guid.NewGuid();
+
+            CloudBlockBlob blockBlob = blobContainer.GetBlockBlobReference($"{id.ToString()}.jpg");
+            await blockBlob.UploadFromStreamAsync(ms);
+
+            var blob = blobContainer.GetBlobReference($"{id.ToString()}.jpg");
+
+            var uri = blob.Uri.AbsoluteUri;
+
+            var detectedValues = new List<DetectionValue>
+            {
+
+            };
+
+            if (result.Tags?.Any() == true)
+            {
+                detectedValues.AddRange(result.Tags.Where(x => x.Confidence > 0.7).Select(s => new DetectionValue { Confidence = s.Confidence, Name = s.Name}));
+            }
+            if (result.Objects?.Any() == true)
+            {
+                detectedValues.AddRange(result.Objects.Where(x => x.Confidence > 0.7).Select(s => new DetectionValue { Confidence = s.Confidence, Name = s.Name }));
+            }
+            if (result.Text?.Lines?.Any() == true)
+            {
+                detectedValues.AddRange(result.Text?.Lines.Select(s => new DetectionValue { Name = s.Content, IsText = true }));
+            }
+
+            return new HubDocumentImage
+            {
+                uri = uri,
+                DetectionValues = detectedValues
+            };
         }
         public async Task GetVectorOfImage(byte[] bytes)
         {

@@ -25,12 +25,14 @@ namespace Server.Controllers
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly SummarizerService summarizerService;
         private readonly TranslatorService translatorService;
-        public HubDocumentsController(TranslatorService translatorService, HubDocumentsSingleton hubDocumentsSingleton, IWebHostEnvironment webHostEnvironment, SummarizerService summarizerService)
+        private readonly ImageAnalyzerService imageAnalyzerService;
+        public HubDocumentsController(TranslatorService translatorService, ImageAnalyzerService imageAnalyzerService, HubDocumentsSingleton hubDocumentsSingleton, IWebHostEnvironment webHostEnvironment, SummarizerService summarizerService)
         {
             this.hubDocumentsSingleton = hubDocumentsSingleton;
             this.webHostEnvironment = webHostEnvironment;
             this.summarizerService = summarizerService;
             this.translatorService = translatorService;
+            this.imageAnalyzerService = imageAnalyzerService;
         }
 
         [HttpGet("{id}")]
@@ -75,9 +77,19 @@ namespace Server.Controllers
                     {
                         text += $" {page.Text}";
                     }
+                    var images = page.GetImages();
+                    foreach (var image in images)
+                    {
+                        hubDocument.Images.Add(await imageAnalyzerService.AnalyzeImage(image.RawBytes.ToArray()));
+                    }
                 }
 
                 hubDocument.Text = text;
+            }
+
+            if (System.IO.File.Exists(generatedFileName))
+            {
+                System.IO.File.Delete(generatedFileName);
             }
 
             hubDocumentsSingleton.AddHubDocument(hubDocument);

@@ -1,4 +1,5 @@
 using DomainFeatures;
+using DomainFeatures.BlobClient;
 using DomainFeatures.Chats;
 using DomainFeatures.Database;
 using DomainFeatures.HubDocuments;
@@ -37,6 +38,8 @@ namespace Server
             services.AddControllers();
             services.AddSignalR();
 
+            services.AddSingleton<BlobStorageConstants>();
+            services.AddScoped<BlobClientService>();
             services.AddScoped<ImageAnalyzerService>();
             services.AddScoped<ChatBotService>();
             services.AddScoped<QuestionAnswererService>();
