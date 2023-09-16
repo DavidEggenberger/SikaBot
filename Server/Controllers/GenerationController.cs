@@ -26,22 +26,25 @@ namespace Server.Controllers
             [FromQuery] Guid? HubDocumentId,
             [FromQuery] IList<GenerationConfiguration> configuration,
             [FromQuery] IList<string> languageOptions,
-            [FromQuery] 
+            [FromQuery] ImageOption imageOption
             )
         {
             var document = hubDocumentsSingleton.HubDocuments.FirstOrDefault(x => x.Id == HubDocumentId);
 
-
-
             var renderer = new ChromePdfRenderer();
+
+            var pdf = await renderer.RenderHtmlAsPdfAsync($@"<h1 class=""red"">Generated Sika PDF</h1>");
+
+            if (imageOption is not null)
+            {
+
+            }
+
 
             var yellow = "#F5B325";
             var red = "#D8282F";
 
-            renderer.RenderingOptions.CustomCssUrl = "./styles.css";
-
             // Create a PDF from a HTML string using C#
-            var pdf = await renderer.RenderHtmlAsPdfAsync($@"<h1 class=""red"">Generated Sika PDF</h1>");
 
             // Export to a file or Stream
             return new FileStreamResult(pdf.ToDocument().Stream, "application/pdf")
@@ -52,7 +55,8 @@ namespace Server.Controllers
     }
     public class ImageOption
     {
-
+        public string ImageTags { get; set; }
+        public int ImageCount { get; set; }
     }
     public enum GenerationConfiguration
     {
