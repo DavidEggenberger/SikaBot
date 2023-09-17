@@ -66,11 +66,6 @@ namespace DomainFeatures.HubDocuments.Services
 
             // Make sure container is there
             var blobContainer = blobClient.GetContainerReference("default");
-            await blobContainer.CreateIfNotExistsAsync();
-            await blobContainer.SetPermissionsAsync(new BlobContainerPermissions
-            {
-                PublicAccess = BlobContainerPublicAccessType.Blob
-            });
 
             var id = Guid.NewGuid();
 

@@ -24,32 +24,55 @@ namespace DomainFeatures.HubDocuments.Services
             IList<string> recognizedEntities,
             bool? excludeImages)
         {
+            var foundResult = new List<HubDocumentDTO>();
             if (supportedLanguages?.Any() == true)
             {
-                return hubDocumentsSingleton.HubDocuments
+                if(hubDocumentsSingleton.HubDocuments
                     .Where(s => s.Summarization.Any(x => supportedLanguages.Contains(x.Item1) && tags.Any(t => x.Item2.Contains(t))))
-                    .Select(x => x.ToDTO())
-                    .ToList();
+                    
+                    ?.Any() == true)
+                {
+                    foundResult.AddRange(hubDocumentsSingleton.HubDocuments
+                        .Where(s => s.Summarization.Any(x => supportedLanguages.Contains(x.Item1) && tags.Any(t => x.Item2.Contains(t))))
+                        .Select(x => x.ToDTO()));
+                }
             }
 
             if (tags?.Any() == true)
             {
-                return hubDocumentsSingleton.HubDocuments
+                if (hubDocumentsSingleton.HubDocuments
                     .Where(s => s.Summarization.Any(x => tags.Any(t => x.Item2.Contains(t))))
-                    .Select(x => x.ToDTO())
-                    .ToList();
+                    ?.Any() == true)
+                {
+                    foundResult.AddRange(hubDocumentsSingleton.HubDocuments
+                        .Where(s => s.Summarization.Any(x => tags.Any(t => x.Item2.Contains(t))))
+                        .Select(x => x.ToDTO()));
+                }
             }
 
             if (recognizedEntities?.Any() == true)
             {
-                return hubDocumentsSingleton.HubDocuments
+                if (hubDocumentsSingleton.HubDocuments
                     .Where(s => s.Entities.Any(x => tags.Any(t => x.ToLower() == t.ToLower())))
-                    .Select(x => x.ToDTO())
-                    .ToList();
+                    ?.Any() == true)
+                {
+                    foundResult.AddRange(hubDocumentsSingleton.HubDocuments
+                    .Where(s => s.Entities.Any(x => tags.Any(t => x.ToLower() == t.ToLower())))
+                        ?.Select(x => x.ToDTO()));
+                }
             }
 
+            if (excludeImages is false)
+            {
 
-            return hubDocumentsSingleton.HubDocuments
+            }
+
+            if (foundResult.Any() == true) 
+            {
+                return foundResult;
+            }
+
+            return  hubDocumentsSingleton.HubDocuments
                 .Select(x => x.ToDTO())
                 .ToList();
         }

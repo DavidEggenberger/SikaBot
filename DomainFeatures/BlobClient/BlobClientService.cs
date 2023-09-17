@@ -40,36 +40,5 @@ namespace DomainFeatures.BlobClient
                 await blobContainer.DeleteIfExistsAsync();
             }
         }
-
-        public async Task CreateAsync()
-        {
-            string storageConnectionString = configuration["BlobConnection"];
-
-            CloudStorageAccount account = CloudStorageAccount.Parse(storageConnectionString);
-            var blobClient = account.CreateCloudBlobClient();
-
-            // Make sure container is there
-            var blobContainer = blobClient.GetContainerReference("default");
-
-            var deleted = false;
-
-            while(deleted is false)
-            {
-                await Task.Delay(2500);
-                try
-                {
-                    await blobContainer.CreateIfNotExistsAsync();
-                    await blobContainer.SetPermissionsAsync(new BlobContainerPermissions
-                    {
-                        PublicAccess = BlobContainerPublicAccessType.Blob
-                    });
-                }
-                catch (Exception ex)
-                {
-                    continue;
-                }
-                deleted = true;
-            }
-        }
     }
 }

@@ -23,11 +23,6 @@ namespace Server
 
             using (IServiceScope serviceScope = host.Services.CreateScope())
             {
-                var blobClientService = serviceScope.ServiceProvider.GetRequiredService<BlobClientService>();
-                await blobClientService.DeleteAllBlobsAsync();
-
-                await blobClientService.CreateAsync();
-
                 var hubsDocumentLoader = serviceScope.ServiceProvider.GetRequiredService<HubDocumentsLoaderService>();
                 await hubsDocumentLoader.LoadHubDocumentsAsnyc();
 
