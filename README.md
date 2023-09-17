@@ -29,6 +29,7 @@ To make this chatbot an effective tool, we have integrated OpenAI and Azure. Ope
 - Users can search through all of Sika's PDF documents and images
 - They can then specify one document and generate a new version (through specifying length of new document (keywords, summarization or full text). The users can also specify which pictures they want to have in the newly generated PDF.
 - Through the Report endpoint an Excel file can be retrieved that says how many time which document has ben searched for and how many derivations have been created
+- Through the Backend new chats can be created (targeted towards the Client). To these chats messages can be added which are then answered by the Backend through calling OpenAI. 
 
 ## The FUN-Button
 In addition to its primary functionality, the application features a FUN-Button, adding an element of entertainment and engagement for users. By clicking the FUN-Button, customers can access amusing facts about Sika's products or discover interesting comments and quotes related to product descriptions and the company itself.
