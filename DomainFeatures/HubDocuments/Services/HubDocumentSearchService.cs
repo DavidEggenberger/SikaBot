@@ -29,7 +29,6 @@ namespace DomainFeatures.HubDocuments.Services
             {
                 if(hubDocumentsSingleton.HubDocuments
                     .Where(s => s.Summarization.Any(x => supportedLanguages.Contains(x.Item1) && tags.Any(t => x.Item2.Contains(t))))
-                    
                     ?.Any() == true)
                 {
                     foundResult.AddRange(hubDocumentsSingleton.HubDocuments

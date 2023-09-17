@@ -36,6 +36,8 @@ namespace Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            IronPdf.License.LicenseKey = Configuration["IronPDF"];
+
             services.AddControllers(options =>
             {
 

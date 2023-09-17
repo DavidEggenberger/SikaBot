@@ -42,12 +42,12 @@ namespace Server.Controllers
 
             if (configuration.Contains(GenerationConfiguration.Keywords))
             {
-                if (string.IsNullOrEmpty(language) is false)
+                if (string.IsNullOrEmpty(language) is false && document.Keywords?.Any() == true)
                 {
                     var translation = await translatorService.Translate(string.Join(" ", document.KeyPhrases), "EN", language);
                     rendering += $@"<h4>Keywords: {translation}</h4>";
                 }
-                else
+                else if(document.Keywords?.Any() == true)
                 {
                     rendering += $@"<h4>Keywords: {string.Join(", ", document.Keywords)}</h4>";
                 }
@@ -57,22 +57,22 @@ namespace Server.Controllers
             {
                 if (string.IsNullOrEmpty(language) is false)
                 {
-                    var translation = await translatorService.Translate(string.Join(" ", document.Summarization.Where(s => s.Item1.ToLower() == "en").Select(s => s.Item2)), "EN", language);
+                    var translation = await translatorService.Translate(string.Join(" ", document.Summarization.Where(s => s.Item1.ToLower() == "en")?.Select(s => s.Item2)), "EN", language);
                     rendering += $@"<h4>Summary: {translation}</h4>";
                 }
                 else
                 {
-                    rendering += $@"<h4>Summary: {string.Join(", ", document.Summarization.Where(s => s.Item1.ToLower() == "en").Select(s => s.Item2))}</h4>";
+                    rendering += $@"<h4>Summary: {string.Join(", ", document.Summarization.Where(s => s.Item1.ToLower() == "en")?.Select(s => s.Item2))}</h4>";
                 }
             }
 
             if (imageOption is not null)
             {
                 var image = document.Images
-                    .Where(i => imageOption.ImageTags.Any(y => i.DetectionValues.Where(x => x.Confidence >= imageOption.MinConfidence).Select(s => s.Name).ToList().Contains(y)))
-                    .First();
+                    .Where(i => imageOption.ImageTags.Any(y => i.DetectionValues.Where(x => x.Confidence >= imageOption.MinConfidence)?.Select(s => s.Name).ToList().Contains(y) == true))
+                    ?.First();
 
-                rendering += $@"<img src=""{image.uri}"" />";
+                rendering += $@"<img src=""{image?.uri}"" />";
             }
 
             var pdf = await renderer.RenderHtmlAsPdfAsync(rendering);
