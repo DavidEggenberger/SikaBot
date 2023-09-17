@@ -4,7 +4,9 @@ using DomainFeatures.HubDocuments.Services;
 using DTOs.Chat;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OfficeOpenXml;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,22 +28,48 @@ namespace Server.BackgroundJobs
         {
             while (stoppingToken.IsCancellationRequested is false)
             {
-                //var HubDocument = hubDocumentsSingleton.HubDocuments.FirstOrDefault(x => x.PictureExtracted is false);
+                using (var scope = services.CreateScope())
+                {
+                    var reportStore =
+                        scope.ServiceProvider
+                            .GetRequiredService<ReportStore>();
 
-                //if (HubDocument is not null)
-                //{
-                //    using (var scope = services.CreateScope())
-                //    {
-                //        var imageAnalyzerService = scope.ServiceProvider.GetRequiredService<ImageAnalyzerService>();
+                    var hubDocuments = scope.ServiceProvider
+                            .GetRequiredService<HubDocumentsSingleton>();
 
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage())
+                    {
+                        var sheet = package.Workbook.Worksheets.Add("Report_Sheet");
 
-                //    }
+                        sheet.Cells[1, 1].Value = "HubDocument Id";
+                        sheet.Cells[1, 2].Value = "Link";
+                        sheet.Cells[1, 3].Value = "Generated Derivations Count";
+                        sheet.Cells[1, 4].Value = "Retrieval Count";
 
+                        int row = 2;
+                        foreach (var document in hubDocuments.HubDocuments)
+                        {
+                            sheet.Cells[row, 1].Value = document.Id;
+                            sheet.Cells[row, 2].Value = document.Uri;
+                            sheet.Cells[row, 3].Value = document.Generations;
+                            sheet.Cells[row, 4].Value = document.Retrievals;
 
-                //}
+                            row++;
+                        }
 
-                await Task.Delay(5000);
+                        reportStore.Init = true;
+                        reportStore.excel = new MemoryStream(await package.GetAsByteArrayAsync());
+                    }
+
+                    await Task.Delay(5000);
+                }
             }
         }
+    }
+    public class ReportStore
+    {
+        public bool Init { get; set; }
+        public MemoryStream excel = new MemoryStream();
     }
 }

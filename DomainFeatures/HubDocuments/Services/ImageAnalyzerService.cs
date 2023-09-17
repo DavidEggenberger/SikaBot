@@ -91,7 +91,7 @@ namespace DomainFeatures.HubDocuments.Services
             }
             if (result.Text?.Lines?.Any() == true)
             {
-                detectedValues.AddRange(result.Text?.Lines.Select(s => new DetectionValue { Name = s.Content, IsText = true }));
+                detectedValues.AddRange(result.Text?.Lines.Select(s => new DetectionValue { Name = s.Content }));
             }
 
             return new HubDocumentImage
@@ -139,6 +139,7 @@ namespace DomainFeatures.HubDocuments.Services
             CloudBlockBlob blockBlob = blobContainer.GetBlockBlobReference($"{id.ToString()}.jpg");
             await blockBlob.UploadFromStreamAsync(ms);
 
+
             var blob = blobContainer.GetBlobReference($"{id.ToString()}.jpg");
 
             var uri = blob.Uri.AbsoluteUri;
@@ -158,7 +159,7 @@ namespace DomainFeatures.HubDocuments.Services
             }
             if (result.Text?.Lines?.Any() == true)
             {
-                detectedValues.AddRange(result.Text?.Lines.Select(s => new DetectionValue { Name = s.Content, IsText = true }));
+                detectedValues.AddRange(result.Text?.Lines.Select(s => new DetectionValue { Name = s.Content }));
             }
 
             var t = new HubDocumentImage

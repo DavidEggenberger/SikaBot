@@ -33,6 +33,7 @@ namespace DomainFeatures.HubDocuments.Services
                 {
                     foundResult.AddRange(hubDocumentsSingleton.HubDocuments
                         .Where(s => s.Summarization.Any(x => supportedLanguages.Contains(x.Item1) && tags.Any(t => x.Item2.Contains(t))))
+                        .Select(x => { x.Retrievals += 1; return x; })
                         .Select(x => x.ToDTO()));
                 }
             }
@@ -45,6 +46,7 @@ namespace DomainFeatures.HubDocuments.Services
                 {
                     foundResult.AddRange(hubDocumentsSingleton.HubDocuments
                         .Where(s => s.Summarization.Any(x => tags.Any(t => x.Item2.Contains(t))))
+                        .Select(x => { x.Retrievals += 1; return x; })
                         .Select(x => x.ToDTO()));
                 }
             }
@@ -57,6 +59,7 @@ namespace DomainFeatures.HubDocuments.Services
                 {
                     foundResult.AddRange(hubDocumentsSingleton.HubDocuments
                     .Where(s => s.Entities.Any(x => tags.Any(t => x.ToLower() == t.ToLower())))
+                    .Select(x => { x.Retrievals += 1; return x; })
                         ?.Select(x => x.ToDTO()));
                 }
             }

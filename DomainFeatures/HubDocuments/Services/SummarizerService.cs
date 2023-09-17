@@ -59,7 +59,7 @@ namespace DomainFeatures.HubDocuments.Services
                     foreach (var keyPhraseResult in keyPhrasesResults)
                     {
                         var hubDocument = hubDocumentsSingleton.HubDocuments.First(h => h.Id == new Guid(keyPhraseResult.Id));
-                        hubDocument.KeyPhrases = keyPhraseResult.KeyPhrases.ToList();
+                        hubDocument.KeyPhrases = keyPhraseResult.KeyPhrases.Take(10).ToList();
                     }
 
                     foreach (var summarizeResult in summarizationResults)

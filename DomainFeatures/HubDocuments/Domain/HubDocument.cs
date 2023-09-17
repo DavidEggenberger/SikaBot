@@ -10,14 +10,12 @@ namespace DomainFeatures.HubDocuments.Domain
 {
     public class DetectionValue
     {
-        public bool IsText { get; set; }
         public double Confidence { get; set; }
         public string Name { get; set; }
         public DetectionValueDTO ToDTO()
         {
             return new DetectionValueDTO
             {
-                IsText = IsText,
                 Confidence = Confidence,
                 Name = Name
             };
@@ -39,6 +37,8 @@ namespace DomainFeatures.HubDocuments.Domain
     }
     public class HubDocument
     {
+        public string Uri { get; set; }
+        public int Generations { get; set; }
         public Guid Id { get; set; }
         public bool PictureExtracted { get; set; }
         public int Retrievals { get; set; }

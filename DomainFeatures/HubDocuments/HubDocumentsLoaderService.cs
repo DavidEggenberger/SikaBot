@@ -10,6 +10,11 @@ using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig;
 using DomainFeatures.HubDocuments.Domain;
 using DomainFeatures.HubDocuments.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage;
+using UglyToad.PdfPig.Core;
 
 namespace DomainFeatures.Database
 {
@@ -17,10 +22,12 @@ namespace DomainFeatures.Database
     {
         private readonly HubDocumentsSingleton hubDocumentsSingleton;
         private readonly ImageAnalyzerService imageAnalyzerService;
-        public HubDocumentsLoaderService(HubDocumentsSingleton hubDocumentsSingleton, ImageAnalyzerService imageAnalyzerService)
+        private readonly IConfiguration configuration;
+        public HubDocumentsLoaderService(IConfiguration configuration, HubDocumentsSingleton hubDocumentsSingleton, ImageAnalyzerService imageAnalyzerService)
         {
             this.hubDocumentsSingleton = hubDocumentsSingleton;
             this.imageAnalyzerService = imageAnalyzerService;
+            this.configuration = configuration;
         }
         public async Task LoadHubDocumentsAsnyc()
         {
@@ -50,6 +57,20 @@ namespace DomainFeatures.Database
 
                     hubDocumentsSingleton.HubDocuments.Add(hubDocument);
                 }
+
+                string storageConnectionString = configuration["BlobConnection"];
+
+                CloudStorageAccount account = CloudStorageAccount.Parse(storageConnectionString);
+                var blobClient = account.CreateCloudBlobClient();
+
+                // Make sure container is there
+                var blobContainer = blobClient.GetContainerReference("default");
+
+                var idd = Guid.NewGuid();
+
+                CloudBlockBlob blockBlob = blobContainer.GetBlockBlobReference($"{idd.ToString()}.pdf");
+                await blockBlob.UploadFromStreamAsync(File.OpenRead(file));
+                hubDocument.Uri = blockBlob.Uri.AbsoluteUri;
             }
         }
     }

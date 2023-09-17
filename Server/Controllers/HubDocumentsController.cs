@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage;
 using System;
 using System.Collections.Generic;
 using System.Formats.Tar;
@@ -15,6 +17,7 @@ using System.Threading.Tasks;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Extensions.Configuration;
 
 namespace Server.Controllers
 {
@@ -28,7 +31,8 @@ namespace Server.Controllers
         private readonly TranslatorService translatorService;
         private readonly ImageAnalyzerService imageAnalyzerService;
         private readonly HubDocumentSearchService hubDocumentSearchService;
-        public HubDocumentsController(TranslatorService translatorService, HubDocumentSearchService hubDocumentSearchService, ImageAnalyzerService imageAnalyzerService, HubDocumentsSingleton hubDocumentsSingleton, IWebHostEnvironment webHostEnvironment, SummarizerService summarizerService)
+        private readonly IConfiguration configuration;
+        public HubDocumentsController(TranslatorService translatorService, IConfiguration configuration, HubDocumentSearchService hubDocumentSearchService, ImageAnalyzerService imageAnalyzerService, HubDocumentsSingleton hubDocumentsSingleton, IWebHostEnvironment webHostEnvironment, SummarizerService summarizerService)
         {
             this.hubDocumentsSingleton = hubDocumentsSingleton;
             this.webHostEnvironment = webHostEnvironment;
@@ -36,6 +40,7 @@ namespace Server.Controllers
             this.translatorService = translatorService;
             this.imageAnalyzerService = imageAnalyzerService;
             this.hubDocumentSearchService = hubDocumentSearchService;
+            this.configuration = configuration;
         }
 
         [HttpGet]
@@ -87,6 +92,20 @@ namespace Server.Controllers
             }
 
             hubDocumentsSingleton.AddHubDocument(hubDocument);
+
+            string storageConnectionString = configuration["BlobConnection"];
+
+            CloudStorageAccount account = CloudStorageAccount.Parse(storageConnectionString);
+            var blobClient = account.CreateCloudBlobClient();
+
+            // Make sure container is there
+            var blobContainer = blobClient.GetContainerReference("default");
+
+            var idd = Guid.NewGuid();
+
+            CloudBlockBlob blockBlob = blobContainer.GetBlockBlobReference($"{idd.ToString()}.pdf");
+            await blockBlob.UploadFromStreamAsync(pdfFile.OpenReadStream());
+            hubDocument.Uri = blockBlob.Uri.AbsoluteUri;
 
             await summarizerService.SummarizeHubDocumentAsync(hubDocument);
             await translatorService.TranslateHubDocumentsAsync(new List<HubDocument> { hubDocument });
