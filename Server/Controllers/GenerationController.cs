@@ -88,7 +88,7 @@ namespace Server.Controllers
 
                 if (image is null)
                 {
-                    rendering += $@"<h5>No Image found for: {string.Join(", ", imageOption.ImageTags)} </h5>";
+                    rendering += $@"<h5>No Image found for: {string.Join(", ", imageOption?.ImageTags)} </h5>";
                 }
                 else
                 {
