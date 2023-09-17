@@ -24,7 +24,7 @@ namespace Server.Controllers
 
             return hubDocumentsSingleton.HubDocuments.SelectMany(x => x.Images)
                 .Where(x => imageSearches.All(p => x.DetectionValues.Any(x => x.Confidence >= p.MinConfidence && x.Name.ToLower() == p.Tag.ToLower())))
-                .Select(x => x.ToDTO())
+                ?.Select(x => x.ToDTO())
                 .ToList();
         }
     }

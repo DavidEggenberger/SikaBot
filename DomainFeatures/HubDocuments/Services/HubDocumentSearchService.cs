@@ -66,7 +66,6 @@ namespace DomainFeatures.HubDocuments.Services
 
             if (excludeImages is false)
             {
-
             }
 
             if (foundResult.Any() == true) 
@@ -74,9 +73,7 @@ namespace DomainFeatures.HubDocuments.Services
                 return foundResult;
             }
 
-            return  hubDocumentsSingleton.HubDocuments
-                .Select(x => x.ToDTO())
-                .ToList();
+            return null;
         }
     }
 }
