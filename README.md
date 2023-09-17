@@ -19,8 +19,17 @@ One of the significant challenges Sika AG faces is the efficient management of p
 ## The Solution - Building the Application
 To address these challenges and maintain a clear overview of product stock and information, we have developed a specialized application. This application takes the form of a chatbot with access to Sika's entire database. Customers can interact with the chatbot, making specific inquiries about products and related details.
 
-## Leveraging OpenAI Technology
-To make this chatbot an effective tool, we have integrated OpenAI technology. The chatbot utilizes OpenAI to analyze and match patterns between customer queries and the vast database of documents within Sika AG. This intelligent matching system ensures that customers receive precise and relevant information, enhancing their experience and satisfaction.
+## Leveraging Azure Technology
+To make this chatbot an effective tool, we have integrated OpenAI and Azure. OpenAI is used to analyze and match patterns between customer queries and the vast database of documents within Sika AG. Azure is used to host the application, store the files (Azure Blob Storage). Various Azure Cognitive Services (Translator, Custom Vision and Language) are used to make the translation into the desired languages work, to extract key information from the PDFs and Pictures in the PDFs. 
+
+## Features
+- The Backend crawls through the PDFs and extracts text and the images
+- With Azure the text is summarized and tags for the images are detected
+- Users can manually upload PDFs and optionally specify languages in which they want the calculated summary of the PDF to be translated
+- Users can search through all of Sika's PDF documents and images
+- They can then specify one document and generate a new version (through specifying length of new document (keywords, summarization or full text). The users can also specify which pictures they want to have in the newly generated PDF.
+- Through the Report endpoint an Excel file can be retrieved that says how many time which document has ben searched for and how many derivations have been created
+- Through the Backend new chats can be created (targeted towards the Client). To these chats messages can be added which are then answered by the Backend through calling OpenAI. 
 
 ## The FUN-Button
 In addition to its primary functionality, the application features a FUN-Button, adding an element of entertainment and engagement for users. By clicking the FUN-Button, customers can access amusing facts about Sika's products or discover interesting comments and quotes related to product descriptions and the company itself.
