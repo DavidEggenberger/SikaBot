@@ -105,6 +105,76 @@ namespace DomainFeatures.HubDocuments.Services
                 DetectionValues = detectedValues
             };
         }
+
+        public async Task AnalyzeImage(HubDocument hubDocument, byte[] bytes)
+        {
+            using var imageSourceBuffer = new ImageSourceBuffer();
+            imageSourceBuffer.GetWriter().Write(new Memory<byte>(bytes));
+            using var imageSource = VisionSource.FromImageSourceBuffer(imageSourceBuffer);
+
+            var analysisOptions = new ImageAnalysisOptions()
+            {
+                Features =
+                ImageAnalysisFeature.Objects
+                | ImageAnalysisFeature.Text
+                | ImageAnalysisFeature.Tags
+            };
+
+            using var analyzer = new ImageAnalyzer(visionServiceOptions, imageSource, analysisOptions);
+
+            var result = await analyzer.AnalyzeAsync();
+
+            MemoryStream ms = new MemoryStream(bytes);
+
+            string storageConnectionString = configuration["BlobConnection"];
+
+            CloudStorageAccount account = CloudStorageAccount.Parse(storageConnectionString);
+            var blobClient = account.CreateCloudBlobClient();
+
+            // Make sure container is there
+            var blobContainer = blobClient.GetContainerReference("default");
+            await blobContainer.CreateIfNotExistsAsync();
+            await blobContainer.SetPermissionsAsync(new BlobContainerPermissions
+            {
+                PublicAccess = BlobContainerPublicAccessType.Blob
+            });
+
+            var id = Guid.NewGuid();
+
+            CloudBlockBlob blockBlob = blobContainer.GetBlockBlobReference($"{id.ToString()}.jpg");
+            await blockBlob.UploadFromStreamAsync(ms);
+
+            var blob = blobContainer.GetBlobReference($"{id.ToString()}.jpg");
+
+            var uri = blob.Uri.AbsoluteUri;
+
+            var detectedValues = new List<DetectionValue>
+            {
+
+            };
+
+            if (result.Tags?.Any() == true)
+            {
+                detectedValues.AddRange(result.Tags.Where(x => x.Confidence > 0.7).Select(s => new DetectionValue { Confidence = s.Confidence, Name = s.Name }));
+            }
+            if (result.Objects?.Any() == true)
+            {
+                detectedValues.AddRange(result.Objects.Where(x => x.Confidence > 0.7).Select(s => new DetectionValue { Confidence = s.Confidence, Name = s.Name }));
+            }
+            if (result.Text?.Lines?.Any() == true)
+            {
+                detectedValues.AddRange(result.Text?.Lines.Select(s => new DetectionValue { Name = s.Content, IsText = true }));
+            }
+
+            var t = new HubDocumentImage
+            {
+                uri = uri,
+                DetectionValues = detectedValues
+            };
+
+            hubDocument.Images.Add(t);
+        }
+
         public async Task GetVectorOfImage(byte[] bytes)
         {
             var id = Guid.NewGuid();

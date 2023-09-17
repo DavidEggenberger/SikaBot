@@ -40,6 +40,7 @@ namespace DomainFeatures.HubDocuments.Domain
     public class HubDocument
     {
         public Guid Id { get; set; }
+        public bool PictureExtracted { get; set; }
         public int Retrievals { get; set; }
         public string Location { get; set; }
         public List<(string, string)> Summarization { get; set; }

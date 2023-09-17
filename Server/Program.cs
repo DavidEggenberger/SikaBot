@@ -23,16 +23,16 @@ namespace Server
 
             using (IServiceScope serviceScope = host.Services.CreateScope())
             {
-                //var blobClientService = serviceScope.ServiceProvider.GetRequiredService<BlobClientService>();
-                //await blobClientService.DeleteAllBlobsAsync();
+                var blobClientService = serviceScope.ServiceProvider.GetRequiredService<BlobClientService>();
+                await blobClientService.DeleteAllBlobsAsync();
 
-                //await blobClientService.CreateAsync();
+                await blobClientService.CreateAsync();
 
-                //var hubsDocumentLoader = serviceScope.ServiceProvider.GetRequiredService<HubDocumentsLoaderService>();
-                //await hubsDocumentLoader.LoadHubDocumentsAsnyc();
+                var hubsDocumentLoader = serviceScope.ServiceProvider.GetRequiredService<HubDocumentsLoaderService>();
+                await hubsDocumentLoader.LoadHubDocumentsAsnyc();
 
-                //var summarizerService = serviceScope.ServiceProvider.GetRequiredService<SummarizerService>();
-                //await summarizerService.SummarizeHubDocuments();
+                var summarizerService = serviceScope.ServiceProvider.GetRequiredService<SummarizerService>();
+                await summarizerService.SummarizeHubDocuments();
             }
 
             host.Run();

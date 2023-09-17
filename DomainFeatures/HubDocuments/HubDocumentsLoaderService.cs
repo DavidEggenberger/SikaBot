@@ -23,7 +23,7 @@ namespace DomainFeatures.Database
             this.imageAnalyzerService = imageAnalyzerService;
         }
         public async Task LoadHubDocumentsAsnyc()
-        {            
+        {
             foreach (var file in Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"Data\PDF\"), "*.pdf", SearchOption.AllDirectories))
             {
                 HubDocument hubDocument = new HubDocument();
@@ -37,10 +37,10 @@ namespace DomainFeatures.Database
                             text += $" {page.Text}";
                         }
 
-                        var images = page.GetImages();
+                        var images = page.GetImages().Take(1);
                         foreach (var image in images)
                         {
-                            //hubDocument.Images.Add(await imageAnalyzerService.AnalyzeImage(image.RawBytes.ToArray()));
+                            imageAnalyzerService.AnalyzeImage(hubDocument, image.RawBytes.ToArray());
                         }
                     }
 
